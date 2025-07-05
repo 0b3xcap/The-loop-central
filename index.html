@@ -111,21 +111,29 @@
       text.innerText = '';
 
       await wait(500);
-
       const slide = slides[current];
 
       if (slide.type === 'image') {
         image.src = slide.src;
         image.style.display = 'block';
+
         if (slide.intro) {
+          // INTRO LOGO: 5s fade in, 3s hold, 1.5s fade out
+          image.style.opacity = 0;
           image.style.transition = 'opacity 5s ease-in-out';
+          await wait(50);
           image.style.opacity = 1;
-          await wait(5000);
-          await wait(3000); // Hold
+          await wait(5000); // fade in
+
+          image.style.transition = 'none';
+          image.style.opacity = 1;
+          await wait(3000); // hold
+
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 0;
-          await wait(1500);
+          await wait(1500); // fade out
         } else {
+          image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 1;
           await wait(15000);
           image.style.opacity = 0;
@@ -149,11 +157,9 @@
       }
 
       current++;
-
       if (current < slides.length) {
         showSlide();
       } else {
-        // Final slide done – fade to black
         await wait(1000);
         fadeout.style.opacity = 1;
       }
