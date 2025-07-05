@@ -67,6 +67,32 @@
       transition: opacity 2s ease-in-out;
       z-index: 999;
     }
+
+    #overlay {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      color: white;
+      font-family: Arial, sans-serif;
+      font-size: 2.5em;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      z-index: 1000;
+      transition: opacity 1.5s ease-in-out;
+      cursor: pointer;
+    }
+
+    #overlay.show {
+      opacity: 1;
+    }
+
+    audio {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -74,6 +100,8 @@
   <video id="video" muted playsinline></video>
   <div id="text"></div>
   <div id="fadeout"></div>
+  <div id="overlay">Tap to begin</div>
+  <audio id="bgAudio" src="THE LOOP.mp3" loop></audio>
 
   <script>
     const slides = [
@@ -100,7 +128,14 @@
     const video = document.getElementById('video');
     const text = document.getElementById('text');
     const fadeout = document.getElementById('fadeout');
+    const overlay = document.getElementById('overlay');
+    const audio = document.getElementById('bgAudio');
+
     let current = 0;
+
+    function wait(ms) {
+      return new Promise(res => setTimeout(res, ms));
+    }
 
     async function showSlide() {
       image.style.opacity = 0;
@@ -196,12 +231,22 @@
       await wait(1000);
     }
 
-    function wait(ms) {
-      return new Promise(res => setTimeout(res, ms));
+    async function init() {
+      overlay.classList.add('show');
+      await wait(5000);
+      overlay.style.opacity = 1;
+      overlay.onclick = async () => {
+        overlay.style.transition = 'opacity 1.5s ease-in-out';
+        overlay.style.opacity = 0;
+        await wait(1500);
+        overlay.style.display = 'none';
+        audio.play();
+        showSlide();
+      };
     }
 
     window.onload = () => {
-      showSlide();
+      init();
     };
   </script>
 </body>
