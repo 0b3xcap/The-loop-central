@@ -67,6 +67,10 @@
       transition: opacity 2s ease-in-out;
       z-index: 999;
     }
+
+    i {
+      font-style: italic;
+    }
   </style>
 </head>
 <body>
@@ -81,7 +85,7 @@
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
       { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'html', html: 'It’s not about control.\nIt’s about keeping <i>GHOSTS</i> off the floor.' },
+      { type: 'richtext', html: 'It’s not about control.<br>It’s about keeping <i>GHOSTS</i> off the floor.' },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
@@ -123,13 +127,15 @@
           image.style.transition = 'opacity 5s ease-in-out';
           await wait(50);
           image.style.opacity = 1;
-          await wait(5000);
+          await wait(5000); // fade in
+
           image.style.transition = 'none';
           image.style.opacity = 1;
-          await wait(3000);
+          await wait(3000); // hold
+
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 0;
-          await wait(1500);
+          await wait(1500); // fade out
         } else {
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 1;
@@ -151,10 +157,10 @@
       }
 
       else if (slide.type === 'text') {
-        await typeAndHold(slide.text);
+        await typeAndHoldText(slide.text);
       }
 
-      else if (slide.type === 'html') {
+      else if (slide.type === 'richtext') {
         await typeAndHoldHTML(slide.html);
       }
 
@@ -167,7 +173,7 @@
       }
     }
 
-    async function typeAndHold(str) {
+    async function typeAndHoldText(str) {
       text.innerText = '';
       text.style.opacity = 1;
       for (let i = 0; i < str.length; i++) {
@@ -179,9 +185,33 @@
       await wait(1000);
     }
 
-    async function typeAndHoldHTML(str) {
-      text.innerHTML = str;
+    async function typeAndHoldHTML(htmlStr) {
+      const parser = new DOMParser();
+      const frag = parser.parseFromString(`<div>${htmlStr}</div>`, 'text/html').body.firstChild;
+      const nodes = Array.from(frag.childNodes);
+      text.innerHTML = '';
       text.style.opacity = 1;
+
+      for (let node of nodes) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          for (let char of node.textContent) {
+            text.innerHTML += char;
+            await wait(150);
+          }
+        } else if (node.nodeType === Node.ELEMENT_NODE) {
+          const outer = document.createElement(node.tagName);
+          for (let char of node.textContent) {
+            outer.innerHTML += char;
+            text.appendChild(outer.cloneNode(true));
+            await wait(150);
+            text.removeChild(text.lastChild);
+          }
+          text.appendChild(outer);
+        } else {
+          continue;
+        }
+      }
+
       await wait(5000);
       text.style.opacity = 0;
       await wait(1000);
