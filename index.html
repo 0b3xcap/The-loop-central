@@ -1,205 +1,170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8"/>
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>The Loop – Toolbox</title>
+  <title>0b3xcap.net</title>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    #slide, #video, #text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    #slide {
-      max-width: 100vw;
-      max-height: 100vh;
-      width: 100vw;
-      height: auto;
-      object-fit: contain;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-      display: none;
-    }
-
-    #video {
-      height: 100vh;
-      width: auto;
-      max-width: 100vw;
-      object-fit: contain;
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
-      display: none;
-    }
-
-    #text {
       font-family: Arial, sans-serif;
+    }
+    .container {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: black;
+      z-index: 1;
+    }
+    .media, .text {
+      display: none;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .text-box {
+      color: white;
       font-size: 2em;
       font-weight: bold;
-      color: white;
       text-align: center;
-      white-space: pre-wrap;
-      word-break: break-word;
-      max-width: 90vw;
-      padding: 0 5vw;
-      opacity: 0;
-      transition: opacity 1s ease-in-out;
+      white-space: pre-line;
     }
-
-    #fadeout {
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
-      background: black;
-      top: 0;
-      left: 0;
-      opacity: 0;
-      transition: opacity 2s ease-in-out;
-      z-index: 999;
+    .fade-in {
+      animation: fadeIn 5s forwards;
+    }
+    .hold {
+      animation: hold 3s forwards;
+    }
+    .fade-out {
+      animation: fadeOut 1.5s forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    @keyframes hold {
+      from { opacity: 1; }
+      to   { opacity: 1; }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to   { opacity: 0; }
+    }
+    video, img {
+      max-height: 100vh;
+      max-width: 100vw;
+      margin: auto;
+      display: block;
     }
   </style>
 </head>
 <body>
-  <img id="slide" />
-  <video id="video" muted playsinline></video>
-  <div id="text"></div>
-  <div id="fadeout"></div>
+  <div class="container" id="display">
+    <div class="text text-box" id="textBox"></div>
+  </div>
 
   <script>
-    const slides = [
-      { type: 'image', src: 'The loop logo.PNG', intro: true },
-      { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
-      { type: 'text', text: 'Walk the line' },
-      { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'text', text: 'It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping <i>GHOSTS</i>\noff the\nfloor.' },
-      { type: 'image', src: 'Proud OEE June.png' },
-      { type: 'text', text: 'This is what progress looks like.' },
-      { type: 'image', src: 'Hit_Miss_shot.png' },
-      { type: 'text', text: 'No blame, just awareness' },
-      { type: 'text', text: 'You said. We did.' },
-      { type: 'image', src: 'You said we did oven board.PNG' },
-      { type: 'image', src: 'You said we did oven vert .JPG' },
-      { type: 'video', src: 'Caught watching .mov' },
-      { type: 'image', src: 'What were noticing.png' },
-      { type: 'video', src: 'Coin token.mov' },
-      { type: 'video', src: 'Radio token.mov' },
-      { type: 'video', src: 'Toyota token .mov' }
+    const sequence = [
+      { type: 'image', src: 'The loop logo.PNG', delay: 0, fadeIn: 5000, hold: 3000, fadeOut: 1500 },
+      { type: 'text', text: 'The smartest ones keep checking\n…even when they’re sure', delay: 0 },
+      { type: 'text', text: 'Walk the line', delay: 0 },
+      { type: 'video', src: 'Ghost walkway .mov', delay: 0 },
+      { type: 'text', text: 'It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping\n<i>GHOSTS</i>\noff the\nfloor.', delay: 0 },
+      { type: 'image', src: 'Proud OEE June.png', delay: 0 },
+      { type: 'text', text: 'This is what progress looks like', delay: 0 },
+      { type: 'image', src: 'Hit_Miss_shot.png', delay: 0 },
+      { type: 'text', text: 'No blame,\njust awareness.', delay: 0 },
+      { type: 'text', text: 'You said.\nWe did.', delay: 0 },
+      { type: 'image', src: 'You said we did oven board.PNG', delay: 0 },
+      { type: 'image', src: 'You said we did oven vert .JPG', delay: 0 },
+      { type: 'video', src: 'Caught watching .mov', delay: 0 },
+      { type: 'image', src: 'What were noticing.png', delay: 0 },
+      { type: 'video', src: 'Coin token.mov', delay: 0 },
+      { type: 'video', src: 'Radio token.mov', delay: 0 },
+      { type: 'video', src: 'Toyota token .mov', delay: 0 }
     ];
 
-    const image = document.getElementById('slide');
-    const video = document.getElementById('video');
-    const text = document.getElementById('text');
-    const fadeout = document.getElementById('fadeout');
     let current = 0;
+    const display = document.getElementById('display');
+    const textBox = document.getElementById('textBox');
 
-    async function showSlide() {
-      image.style.opacity = 0;
-      video.style.opacity = 0;
-      text.style.opacity = 0;
-      image.style.display = 'none';
-      video.style.display = 'none';
-      text.innerHTML = '';
+    function runSequence() {
+      if (current >= sequence.length) {
+        display.innerHTML = '';
+        document.body.style.background = 'black';
+        return;
+      }
 
-      await wait(500);
-      const slide = slides[current];
+      const item = sequence[current];
+      display.innerHTML = '';
 
-      if (slide.type === 'image') {
-        image.src = slide.src;
-        image.style.display = 'block';
+      if (item.type === 'text') {
+        const box = textBox.cloneNode(true);
+        box.innerHTML = '';
+        box.style.display = 'block';
+        display.appendChild(box);
 
-        if (slide.intro) {
-          image.style.opacity = 0;
-          image.style.transition = 'opacity 5s ease-in-out';
-          await wait(50);
-          image.style.opacity = 1;
-          await wait(5000);
-          image.style.transition = 'none';
-          image.style.opacity = 1;
-          await wait(3000);
-          image.style.transition = 'opacity 1.5s ease-in-out';
-          image.style.opacity = 0;
-          await wait(1500);
-        } else {
-          image.style.transition = 'opacity 1.5s ease-in-out';
-          image.style.opacity = 1;
-          await wait(15000);
-          image.style.opacity = 0;
-          await wait(1000);
+        let i = 0;
+        const text = item.text;
+        function typeWriter() {
+          if (i < text.length) {
+            box.innerHTML += text[i] === '\n' ? '<br>' : text[i];
+            i++;
+            setTimeout(typeWriter, 35);
+          } else {
+            setTimeout(() => {
+              current++;
+              runSequence();
+            }, 2000);
+          }
         }
-      }
+        typeWriter();
 
-      else if (slide.type === 'video') {
-        video.src = slide.src;
-        video.load();
-        video.style.display = 'block';
-        video.style.opacity = 1;
-        video.play();
-        await wait(5000);
-        video.style.opacity = 0;
-        await wait(1000);
-      }
+      } else if (item.type === 'image') {
+        const img = document.createElement('img');
+        img.src = item.src;
+        img.className = 'media';
+        img.onload = () => {
+          img.style.display = 'block';
+          img.classList.add('fade-in');
+          display.appendChild(img);
+          setTimeout(() => {
+            img.classList.remove('fade-in');
+            img.classList.add('fade-out');
+            setTimeout(() => {
+              current++;
+              runSequence();
+            }, 1500);
+          }, 5000);
+        };
 
-      else if (slide.type === 'text') {
-        await typeAndHold(slide.text);
-      }
-
-      current++;
-      if (current < slides.length) {
-        showSlide();
-      } else {
-        await wait(1000);
-        fadeout.style.opacity = 1;
+      } else if (item.type === 'video') {
+        const video = document.createElement('video');
+        video.src = item.src;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = true;
+        video.className = 'media';
+        video.onended = () => {
+          current++;
+          runSequence();
+        };
+        video.onerror = () => {
+          current++;
+          runSequence();
+        };
+        display.appendChild(video);
       }
     }
 
-    async function typeAndHold(str) {
-      text.innerHTML = '';
-      text.style.opacity = 1;
-
-      let i = 0;
-      const tagStack = [];
-
-      while (i < str.length) {
-        if (str[i] === '<') {
-          const tagEnd = str.indexOf('>', i);
-          const tagContent = str.slice(i, tagEnd + 1);
-          text.innerHTML += tagContent;
-
-          if (!tagContent.includes('</')) tagStack.push(tagContent);
-          else tagStack.pop();
-
-          i = tagEnd + 1;
-        } else {
-          let openTags = tagStack.join('');
-          let closeTags = tagStack.map(t => `</${t.slice(1)}`).reverse().join('');
-          text.innerHTML = openTags + text.innerHTML.replace(openTags, '').replace(closeTags, '') + str[i] + closeTags;
-          i++;
-        }
-        await wait(150);
-      }
-
-      await wait(5000);
-      text.style.opacity = 0;
-      await wait(1000);
-    }
-
-    function wait(ms) {
-      return new Promise(res => setTimeout(res, ms));
-    }
-
-    window.onload = () => {
-      showSlide();
-    };
+    runSequence();
   </script>
 </body>
 </html>
