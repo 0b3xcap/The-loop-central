@@ -14,40 +14,35 @@
       height: 100vh;
     }
 
-    #slide {
+    #slide, #video, #text {
       position: absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
+    }
+
+    #slide {
       max-width: 100vw;
       max-height: 100vh;
       width: 100vw;
       height: auto;
       object-fit: contain;
       opacity: 0;
-      transition: opacity 2s ease-in-out;
+      transition: opacity 1.5s ease-in-out;
       display: none;
     }
 
     #video {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       height: 100vh;
       width: auto;
       max-width: 100vw;
       object-fit: contain;
       opacity: 0;
-      transition: opacity 2s ease-in-out;
+      transition: opacity 1.5s ease-in-out;
       display: none;
     }
 
     #text {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
       font-family: Arial, sans-serif;
       font-size: 2em;
       font-weight: bold;
@@ -60,16 +55,29 @@
       opacity: 0;
       transition: opacity 1s ease-in-out;
     }
+
+    #fadeout {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+      z-index: 999;
+    }
   </style>
 </head>
 <body>
   <img id="slide" />
   <video id="video" muted playsinline></video>
   <div id="text"></div>
+  <div id="fadeout"></div>
 
   <script>
     const slides = [
-      { type: 'image', src: 'The loop logo.PNG' },
+      { type: 'image', src: 'The loop logo.PNG', intro: true },
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
       { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
@@ -91,6 +99,7 @@
     const image = document.getElementById('slide');
     const video = document.getElementById('video');
     const text = document.getElementById('text');
+    const fadeout = document.getElementById('fadeout');
     let current = 0;
 
     async function showSlide() {
@@ -101,18 +110,26 @@
       video.style.display = 'none';
       text.innerText = '';
 
-      await wait(1000);
+      await wait(500);
+
       const slide = slides[current];
 
       if (slide.type === 'image') {
         image.src = slide.src;
         image.style.display = 'block';
-        image.style.opacity = 1;
-        await wait(15000);
-        image.style.opacity = 0;
-        await wait(1000);
-        if (slide.text) {
-          await typeAndHold(slide.text);
+        if (slide.intro) {
+          image.style.transition = 'opacity 5s ease-in-out';
+          image.style.opacity = 1;
+          await wait(5000);
+          await wait(3000); // Hold
+          image.style.transition = 'opacity 1.5s ease-in-out';
+          image.style.opacity = 0;
+          await wait(1500);
+        } else {
+          image.style.opacity = 1;
+          await wait(15000);
+          image.style.opacity = 0;
+          await wait(1000);
         }
       }
 
@@ -131,8 +148,15 @@
         await typeAndHold(slide.text);
       }
 
-      current = (current + 1) % slides.length;
-      showSlide();
+      current++;
+
+      if (current < slides.length) {
+        showSlide();
+      } else {
+        // Final slide done – fade to black
+        await wait(1000);
+        fadeout.style.opacity = 1;
+      }
     }
 
     async function typeAndHold(str) {
