@@ -79,13 +79,13 @@
     const slides = [
       { type: 'image', src: 'The loop logo.PNG', intro: true },
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
-      { type: 'text', text: 'Walk the line' },
+      { type: 'text', text: 'Walk the line.' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'text', text: "It’s not about control.\n\nIt’s about keeping <i>GHOSTS</i> off the floor." },
+      { type: 'text', text: 'It’s not about control.\nIt’s about keeping <span style="font-style: italic;">GHOSTS</span> off the floor.' },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
-      { type: 'text', text: 'No blame, just awareness' },
+      { type: 'text', text: 'No blame, just awareness.' },
       { type: 'text', text: 'You said. We did.' },
       { type: 'image', src: 'You said we did oven board.PNG' },
       { type: 'image', src: 'You said we did oven vert .JPG' },
@@ -123,11 +123,9 @@
           await wait(50);
           image.style.opacity = 1;
           await wait(5000);
-
           image.style.transition = 'none';
           image.style.opacity = 1;
           await wait(3000);
-
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 0;
           await wait(1500);
