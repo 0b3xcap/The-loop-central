@@ -79,13 +79,13 @@
     const slides = [
       { type: 'image', src: 'The loop logo.PNG', intro: true },
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
-      { type: 'text', text: 'Walk the line.' },
+      { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'text', text: 'It’s not about control.\nIt’s about keeping <span style="font-style: italic;">GHOSTS</span> off the floor.' },
+      { type: 'html', html: 'It’s not about control.\nIt’s about keeping <i>GHOSTS</i> off the floor.' },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
-      { type: 'text', text: 'No blame, just awareness.' },
+      { type: 'text', text: 'No blame, just awareness' },
       { type: 'text', text: 'You said. We did.' },
       { type: 'image', src: 'You said we did oven board.PNG' },
       { type: 'image', src: 'You said we did oven vert .JPG' },
@@ -108,6 +108,7 @@
       text.style.opacity = 0;
       image.style.display = 'none';
       video.style.display = 'none';
+      text.innerText = '';
       text.innerHTML = '';
 
       await wait(500);
@@ -153,6 +154,10 @@
         await typeAndHold(slide.text);
       }
 
+      else if (slide.type === 'html') {
+        await typeAndHoldHTML(slide.html);
+      }
+
       current++;
       if (current < slides.length) {
         showSlide();
@@ -163,12 +168,20 @@
     }
 
     async function typeAndHold(str) {
-      text.innerHTML = '';
+      text.innerText = '';
       text.style.opacity = 1;
       for (let i = 0; i < str.length; i++) {
-        text.innerHTML += str[i];
+        text.innerText += str[i];
         await wait(150);
       }
+      await wait(5000);
+      text.style.opacity = 0;
+      await wait(1000);
+    }
+
+    async function typeAndHoldHTML(str) {
+      text.innerHTML = str;
+      text.style.opacity = 1;
       await wait(5000);
       text.style.opacity = 0;
       await wait(1000);
