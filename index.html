@@ -1,1 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Loop – Toolbox</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: black;
+      overflow: hidden;
+    }
+    #slide {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      object-fit: contain;
+      opacity: 0;
+      transition: opacity 2s ease-in-out;
+    }
+    #text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: Arial, sans-serif;
+      font-size: 2.2em;
+      color: white;
+      text-align: center;
+      white-space: pre-line;
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+    }
+  </style>
+</head>
+<body>
+  <img id="slide" />
+  <video id="video" muted playsinline style="position:absolute;width:100vw;height:100vh;object-fit:contain;opacity:0;transition:opacity 2s ease-in-out;"></video>
+  <div id="text"></div>
 
+  <script>
+    const slides = [
+      { type: 'image', src: 'The loop logo.PNG' },
+      { type: 'text', text: 'The smartest ones keep checking even when they’re sure' },
+      { type: 'text', text: 'Walk the line' },
+      { type: 'video', src: 'Ghost walkway .mov' },
+      { type: 'text', text: 'it’s not about control.\nIt’s about keeping ghosts off the floor.' },
+      { type: 'image', src: 'Proud OEE June.png', text: 'This is what progress looks like' },
+      { type: 'image', src: 'Hit-Miss.png', text: 'No blame, just awareness' },
+      { type: 'text', text: 'You said. We did.' },
+      { type: 'image', src: 'You said we did oven board.PNG' },
+      { type: 'image', src: 'You said we did oven vert .JPG' },
+      { type: 'video', src: 'Caught watching .mov' },
+      { type: 'image', src: 'What were noticing.png' },
+      { type: 'video', src: 'Coin token.mov' },
+      { type: 'video', src: 'Radio token.mov' },
+      { type: 'video', src: 'Toyota token .mov' },
+    ];
+
+    const image = document.getElementById('slide');
+    const video = document.getElementById('video');
+    const text = document.getElementById('text');
+
+    let current = 0;
+
+    async function showSlide() {
+      image.style.opacity = 0;
+      video.style.opacity = 0;
+      text.style.opacity = 0;
+
+      await new Promise(res => setTimeout(res, 1000));
+      const slide = slides[current];
+
+      if (slide.type === 'image') {
+        video.pause();
+        video.style.display = 'none';
+        image.src = slide.src;
+        image.style.display = 'block';
+        image.style.opacity = 1;
+        await new Promise(res => setTimeout(res, 15000));
+        if (slide.text) {
+          text.innerText = '';
+          await new Promise(res => setTimeout(res, 500));
+          typeText(slide.text);
+          await new Promise(res => setTimeout(res, 5000));
+          text.style.opacity = 0;
+        }
+      }
+
+      else if (slide.type === 'video') {
+        image.style.display = 'none';
+        video.src = slide.src;
+        video.style.display = 'block';
+        video.load();
+        video.style.opacity = 1;
+        video.play();
+        await new Promise(res => setTimeout(res, 5000));
+        video.style.opacity = 0;
+        await new Promise(res => setTimeout(res, 1000));
+      }
+
+      else if (slide.type === 'text') {
+        image.style.display = 'none';
+        video.style.display = 'none';
+        text.innerText = '';
+        await new Promise(res => setTimeout(res, 500));
+        typeText(slide.text);
+        await new Promise(res => setTimeout(res, 5000));
+        text.style.opacity = 0;
+        await new Promise(res => setTimeout(res, 1000));
+      }
+
+      current = (current + 1) % slides.length;
+      showSlide();
+    }
+
+    function typeText(str) {
+      let i = 0;
+      text.style.opacity = 1;
+      const interval = setInterval(() => {
+        if (i < str.length) {
+          text.innerText += str[i];
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 35);
+    }
+
+    window.onload = () => {
+      showSlide();
+    };
+  </script>
+</body>
+</html>
