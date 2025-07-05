@@ -166,26 +166,27 @@
       text.innerHTML = '';
       text.style.opacity = 1;
 
+      let output = '';
       let i = 0;
-      let buffer = '';
-      let italic = false;
 
       while (i < str.length) {
-        if (str.slice(i, i + 3) === '<i>') {
-          italic = true;
+        if (str.startsWith('<i>', i)) {
+          output += '<i>';
           i += 3;
-          continue;
-        }
-
-        if (str.slice(i, i + 4) === '</i>') {
-          italic = false;
+          while (i < str.length && !str.startsWith('</i>', i)) {
+            output += str[i];
+            i++;
+            text.innerHTML = output + '</i>';
+            await wait(150);
+          }
+          output += '</i>';
           i += 4;
+          text.innerHTML = output;
           continue;
         }
 
-        buffer += str[i];
-        text.innerHTML = italic ? buffer.replace(/(GHOSTS)/, '<i>$1</i>') : buffer;
-
+        output += str[i];
+        text.innerHTML = output;
         i++;
         await wait(150);
       }
