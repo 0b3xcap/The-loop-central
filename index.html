@@ -81,7 +81,7 @@
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
       { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'text', text: 'It’s not about control.\n\nIt’s about keeping *GHOSTS* off the floor.' },
+      { type: 'text', text: "It’s not about control.\n\nIt’s about keeping <i>GHOSTS</i> off the floor." },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
@@ -108,7 +108,7 @@
       text.style.opacity = 0;
       image.style.display = 'none';
       video.style.display = 'none';
-      text.innerText = '';
+      text.innerHTML = '';
 
       await wait(500);
       const slide = slides[current];
@@ -118,20 +118,19 @@
         image.style.display = 'block';
 
         if (slide.intro) {
-          // INTRO LOGO: 5s fade in, 3s hold, 1.5s fade out
           image.style.opacity = 0;
           image.style.transition = 'opacity 5s ease-in-out';
           await wait(50);
           image.style.opacity = 1;
-          await wait(5000); // fade in
+          await wait(5000);
 
           image.style.transition = 'none';
           image.style.opacity = 1;
-          await wait(3000); // hold
+          await wait(3000);
 
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 0;
-          await wait(1500); // fade out
+          await wait(1500);
         } else {
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 1;
@@ -166,10 +165,10 @@
     }
 
     async function typeAndHold(str) {
-      text.innerText = '';
+      text.innerHTML = '';
       text.style.opacity = 1;
       for (let i = 0; i < str.length; i++) {
-        text.innerText += str[i];
+        text.innerHTML += str[i];
         await wait(150);
       }
       await wait(5000);
