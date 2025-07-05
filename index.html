@@ -2,59 +2,98 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>The Loop – Toolbox</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <style>
     html, body {
       margin: 0;
       padding: 0;
       background: black;
       overflow: hidden;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      font-weight: bold;
-      color: white;
-      height: 100%;
-      width: 100%;
+      height: 100vh;
+      width: 100vw;
     }
+
     .container {
       position: absolute;
-      width: 100%;
+      top: 0; left: 0;
       height: 100%;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: black;
+    }
+
+    .slide {
+      opacity: 0;
+      transition: opacity 1s ease-in-out;
+      position: absolute;
+      top: 0; left: 0;
+      height: 100%;
+      width: 100%;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .fade {
-      opacity: 0;
-      transition: opacity 1.5s ease-in-out;
+
+    .slide.show {
+      opacity: 1;
     }
-    img, video {
-      max-height: 100%;
-      max-width: 100%;
+
+    video, img {
+      max-height: 100vh;
+      max-width: 100vw;
       object-fit: contain;
     }
-    #text {
-      font-size: 2rem;
-      white-space: pre-line;
+
+    .text-overlay {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-family: Helvetica, sans-serif;
+      font-size: 2em;
+      font-weight: bold;
       text-align: center;
-      padding: 0 20px;
+      white-space: pre-wrap;
+      padding: 1em;
+    }
+
+    .fade-in {
+      animation: fadeIn 5s forwards;
+    }
+
+    .fade-out {
+      animation: fadeOut 1.5s forwards;
+    }
+
+    @keyframes fadeIn {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+
+    @keyframes fadeOut {
+      0%   { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    .italic {
+      font-style: italic;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img id="image" class="fade" style="display: none;" />
-    <video id="video" class="fade" playsinline webkit-playsinline muted style="display: none;"></video>
-    <div id="text" class="fade" style="display: none;"></div>
-  </div>
+  <div class="container" id="container"></div>
 
   <script>
     const slides = [
-      { type: "image", src: "loop logo.PNG", intro: true },
-      { type: "text", content: "The smartest ones keep\nchecking even when they’re sure." },
+      { type: "image", src: "The loop logo.PNG", intro: true },
+
+      { type: "text", content: "The smartest ones keep checking even when they’re sure." },
       { type: "text", content: "Walk the line" },
       { type: "video", src: "Ghost walkway .mov" },
-      { type: "text", content: "It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping *GHOSTS*\noff the floor." },
+      { type: "text", content: "It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping\n\n*GHOSTS* off\nthe floor." },
       { type: "image", src: "Proud OEE June.png" },
       { type: "text", content: "This is what progress looks like" },
       { type: "image", src: "Hit_Miss_shot.png" },
@@ -69,84 +108,103 @@
       { type: "video", src: "Toyota token .mov" }
     ];
 
-    const image = document.getElementById("image");
-    const video = document.getElementById("video");
-    const text = document.getElementById("text");
+    const container = document.getElementById("container");
 
-    function wait(ms) {
-      return new Promise(resolve => setTimeout(resolve, ms));
-    }
+    let index = 0;
 
-    async function runSlides() {
-      for (let i = 0; i < slides.length; i++) {
-        const slide = slides[i];
+    function createSlide(slide) {
+      const div = document.createElement("div");
+      div.className = "slide";
 
-        image.style.display = "none";
-        video.style.display = "none";
-        text.style.display = "none";
-
-        if (slide.type === "image") {
-          image.src = slide.src;
-          image.style.display = "block";
-
-          if (slide.intro) {
-            image.style.opacity = 0;
-            image.style.transition = "opacity 5s ease-in-out";
-            await wait(50);
-            image.style.opacity = 1;
-            await wait(5000); // fade in
-
-            image.style.transition = "none";
-            image.style.opacity = 1;
-            await wait(3000); // hold
-
-            image.style.transition = "opacity 1.5s ease-in-out";
-            image.style.opacity = 0;
-            await wait(1500); // fade out
-          } else {
-            image.style.opacity = 1;
-            await wait(15000);
-            image.style.opacity = 0;
-            await wait(1000);
-          }
-        }
-
-        else if (slide.type === "video") {
-          video.src = slide.src;
-          video.style.display = "block";
-          video.load();
-          await wait(100);
-          video.play();
-          video.style.opacity = 1;
-
-          await new Promise(resolve => {
-            video.onended = resolve;
-          });
-
-          video.style.opacity = 0;
-          await wait(1000);
-        }
-
-        else if (slide.type === "text") {
-          text.innerHTML = slide.content
-            .replace(/\n/g, "<br>")
-            .replace(/\*(.*?)\*/g, "<i><b>$1</b></i>");
-
-          text.style.display = "block";
-          text.style.opacity = 1;
-
-          await wait(5000); // hold text
-          text.style.opacity = 0;
-          await wait(1000);
-        }
+      if (slide.type === "image") {
+        const img = document.createElement("img");
+        img.src = slide.src;
+        div.appendChild(img);
+      } else if (slide.type === "video") {
+        const video = document.createElement("video");
+        video.src = slide.src;
+        video.autoplay = true;
+        video.muted = true;
+        video.playsInline = true;
+        video.onended = nextSlide;
+        div.appendChild(video);
+      } else if (slide.type === "text") {
+        const text = document.createElement("div");
+        text.className = "text-overlay";
+        text.innerHTML = slide.content.replace(/\*([^\*]+)\*/g, '<span class="italic">$1</span>').replace(/\n/g, "<br>");
+        div.appendChild(text);
       }
 
-      // 🔚 Fade to black
-      document.body.style.transition = "background 2s";
-      document.body.style.background = "black";
+      return div;
     }
 
-    runSlides();
+    function showIntroLogo(slide) {
+      const div = document.createElement("div");
+      div.className = "slide show";
+      const img = document.createElement("img");
+      img.src = slide.src;
+      img.style.opacity = 0;
+      img.classList.add("fade-in");
+      div.appendChild(img);
+      container.appendChild(div);
+
+      setTimeout(() => {
+        img.classList.remove("fade-in");
+        img.classList.add("fade-out");
+      }, 8000); // 5s fade in + 3s hold
+
+      setTimeout(() => {
+        container.removeChild(div);
+        index++;
+        nextSlide();
+      }, 9500); // total 9.5s duration
+    }
+
+    function nextSlide() {
+      if (index >= slides.length) {
+        fadeToBlack();
+        return;
+      }
+
+      const current = slides[index];
+      const slideEl = createSlide(current);
+      container.appendChild(slideEl);
+
+      requestAnimationFrame(() => slideEl.classList.add("show"));
+
+      let duration = 4000;
+      if (current.type === "image") duration = 6000;
+      if (current.type === "text") duration = 5000;
+
+      if (current.type !== "video") {
+        setTimeout(() => {
+          slideEl.classList.remove("show");
+          setTimeout(() => {
+            container.removeChild(slideEl);
+            index++;
+            nextSlide();
+          }, 1000);
+        }, duration);
+      }
+    }
+
+    function fadeToBlack() {
+      const black = document.createElement("div");
+      black.className = "slide show";
+      black.style.background = "black";
+      container.appendChild(black);
+    }
+
+    function startSequence() {
+      const first = slides[0];
+      if (first.intro) {
+        showIntroLogo(first);
+      } else {
+        nextSlide();
+      }
+    }
+
+    window.onload = startSequence;
   </script>
 </body>
 </html>
