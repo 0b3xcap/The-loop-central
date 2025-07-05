@@ -81,7 +81,7 @@
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
       { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'text', text: "It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping " + "<i>GHOSTS</i>" + "\noff the\nfloor." },
+      { type: 'text', text: "It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping <i>GHOSTS</i>\noff the\nfloor." },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
@@ -167,24 +167,26 @@
       text.style.opacity = 1;
 
       let i = 0;
-      const tagStack = [];
+      let buffer = '';
+      let italic = false;
 
       while (i < str.length) {
-        if (str[i] === '<') {
-          const tagEnd = str.indexOf('>', i);
-          const tagContent = str.slice(i, tagEnd + 1);
-          text.innerHTML += tagContent;
-
-          if (!tagContent.includes('</')) tagStack.push(tagContent);
-          else tagStack.pop();
-
-          i = tagEnd + 1;
-        } else {
-          let openTags = tagStack.join('');
-          let closeTags = tagStack.map(t => `</${t.slice(1)}`).reverse().join('');
-          text.innerHTML = openTags + text.innerHTML.replace(openTags, '').replace(closeTags, '') + str[i] + closeTags;
-          i++;
+        if (str.slice(i, i + 3) === '<i>') {
+          italic = true;
+          i += 3;
+          continue;
         }
+
+        if (str.slice(i, i + 4) === '</i>') {
+          italic = false;
+          i += 4;
+          continue;
+        }
+
+        buffer += str[i];
+        text.innerHTML = italic ? buffer.replace(/(GHOSTS)/, '<i>$1</i>') : buffer;
+
+        i++;
         await wait(150);
       }
 
