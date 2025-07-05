@@ -67,10 +67,6 @@
       transition: opacity 2s ease-in-out;
       z-index: 999;
     }
-
-    i {
-      font-style: italic;
-    }
   </style>
 </head>
 <body>
@@ -85,7 +81,7 @@
       { type: 'text', text: 'The smartest ones keep checking even when they’re sure.' },
       { type: 'text', text: 'Walk the line' },
       { type: 'video', src: 'Ghost walkway .mov' },
-      { type: 'richtext', html: 'It’s not about control.<br>It’s about keeping <i>GHOSTS</i> off the floor.' },
+      { type: 'text', text: 'It’s not\nabout\ncontrol.\n\nIt’s about\nkeeping <i>GHOSTS</i>\noff the\nfloor.' },
       { type: 'image', src: 'Proud OEE June.png' },
       { type: 'text', text: 'This is what progress looks like.' },
       { type: 'image', src: 'Hit_Miss_shot.png' },
@@ -112,7 +108,6 @@
       text.style.opacity = 0;
       image.style.display = 'none';
       video.style.display = 'none';
-      text.innerText = '';
       text.innerHTML = '';
 
       await wait(500);
@@ -127,15 +122,13 @@
           image.style.transition = 'opacity 5s ease-in-out';
           await wait(50);
           image.style.opacity = 1;
-          await wait(5000); // fade in
-
+          await wait(5000);
           image.style.transition = 'none';
           image.style.opacity = 1;
-          await wait(3000); // hold
-
+          await wait(3000);
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 0;
-          await wait(1500); // fade out
+          await wait(1500);
         } else {
           image.style.transition = 'opacity 1.5s ease-in-out';
           image.style.opacity = 1;
@@ -157,11 +150,7 @@
       }
 
       else if (slide.type === 'text') {
-        await typeAndHoldText(slide.text);
-      }
-
-      else if (slide.type === 'richtext') {
-        await typeAndHoldHTML(slide.html);
+        await typeAndHold(slide.text);
       }
 
       current++;
@@ -173,43 +162,30 @@
       }
     }
 
-    async function typeAndHoldText(str) {
-      text.innerText = '';
-      text.style.opacity = 1;
-      for (let i = 0; i < str.length; i++) {
-        text.innerText += str[i];
-        await wait(150);
-      }
-      await wait(5000);
-      text.style.opacity = 0;
-      await wait(1000);
-    }
-
-    async function typeAndHoldHTML(htmlStr) {
-      const parser = new DOMParser();
-      const frag = parser.parseFromString(`<div>${htmlStr}</div>`, 'text/html').body.firstChild;
-      const nodes = Array.from(frag.childNodes);
+    async function typeAndHold(str) {
       text.innerHTML = '';
       text.style.opacity = 1;
 
-      for (let node of nodes) {
-        if (node.nodeType === Node.TEXT_NODE) {
-          for (let char of node.textContent) {
-            text.innerHTML += char;
-            await wait(150);
-          }
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-          const outer = document.createElement(node.tagName);
-          for (let char of node.textContent) {
-            outer.innerHTML += char;
-            text.appendChild(outer.cloneNode(true));
-            await wait(150);
-            text.removeChild(text.lastChild);
-          }
-          text.appendChild(outer);
+      let i = 0;
+      const tagStack = [];
+
+      while (i < str.length) {
+        if (str[i] === '<') {
+          const tagEnd = str.indexOf('>', i);
+          const tagContent = str.slice(i, tagEnd + 1);
+          text.innerHTML += tagContent;
+
+          if (!tagContent.includes('</')) tagStack.push(tagContent);
+          else tagStack.pop();
+
+          i = tagEnd + 1;
         } else {
-          continue;
+          let openTags = tagStack.join('');
+          let closeTags = tagStack.map(t => `</${t.slice(1)}`).reverse().join('');
+          text.innerHTML = openTags + text.innerHTML.replace(openTags, '').replace(closeTags, '') + str[i] + closeTags;
+          i++;
         }
+        await wait(150);
       }
 
       await wait(5000);
